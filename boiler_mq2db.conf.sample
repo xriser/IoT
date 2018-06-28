@@ -1,0 +1,16 @@
+[settings]
+
+InfluxDBHost = 127.0.0.1
+InfluxDBPort = 8086
+InfluxDBUser = user
+InfluxDBPass = pass
+InfluxDBDatabase = db
+
+MqttHost = 127.0.0.1
+MqttPort = 1883
+MqttUser = user
+MqttPass = pass
+
+BlynkUrl    = http://127.0.0.1
+BlynkPort   = 8080
+BlynkToken  = token_hash
