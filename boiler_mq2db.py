@@ -5,14 +5,11 @@ from influxdb.client import InfluxDBClientError
 import configparser
 import os
 import sys
-#from apscheduler.scheduler import Scheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 import re
 import requests
 import json
-
 import datetime
-
 
 
 prev_temp = 0
@@ -49,7 +46,7 @@ def load_dirty_json(dirty_json):
 
 
 def post_2blynk(pin, pin_value):
-    print("Check response...")
+    #print("Check response...")
     try:
         response = requests.get(BlynkUrl + ':' + BlynkPort + '/' + BlynkToken + '/update/' + pin + '?value='+ pin_value, timeout=(15, 15))
         response.raise_for_status()
@@ -67,19 +64,16 @@ def post_2blynk(pin, pin_value):
         print('Oops. HTTP Error occured')
         print('Response is: {content}'.format(content=err.response.content))
 
-    print("Response status code: " + str(response.status_code))
-
+    #print("Response status code: " + str(response.status_code))
     text = response.text
 
 
 def every_minute():
-    print("Every minute")
-
+    #print("Every minute")
     d = datetime.date.today()
     month = '{:02d}'.format(d.month)
     day = '{:02d}'.format(d.day)
     year = d.year
-
 
     #check energy today month
     std = readInflux("SELECT (fullenergy) FROM boiler WHERE time >= \'" + str(year) + "-" + month + "-" + day +"T00:00:00Z\'" + " limit 1 tz('Europe/Kiev')")
@@ -87,14 +81,13 @@ def every_minute():
     end = readInflux("SELECT (fullenergy) FROM boiler WHERE time <= now() ORDER BY time DESC limit 1 tz('Europe/Kiev')")
 
     #print(std)
-
     stdata = load_dirty_json(str(std.raw))
     stmdata = load_dirty_json(str(stm.raw))
     endata = load_dirty_json(str(end.raw))
 
     value_d = int(endata['series'][0]['values'][0][1]) - int(stdata['series'][0]['values'][0][1])
     value_m = int(endata['series'][0]['values'][0][1]) - int(stmdata['series'][0]['values'][0][1])
-    #value = int(stdata['series'][0]['values'][0][1])
+
     post_2blynk('V9', str(value_d/1000))
     post_2blynk('V10', str(value_m/1000))
 
@@ -106,7 +99,7 @@ def readInflux(query):
     except Exception as err:
         flash("Influx connection error: %s" % str(err))
     if client:
-        print("Read points:")
+        #print("Read points:")
         try:
             result = client.query(query)
         except Exception as err:
@@ -128,7 +121,7 @@ def write_data(json_body):
             print('InfluxDBClientError = ' + str(err))
 
 
-############
+
 def on_message(mqttc, userdata, message):
     global prev_temp, prev_fullenergy, prev_curpower
     print("message received " ,str(message.payload.decode("utf-8")))
@@ -201,7 +194,6 @@ def on_message(mqttc, userdata, message):
           ]
           write_data(json_body)
 
-
           print("get curpower=" + str(message.payload.decode("utf-8")))
           prev_curpower = curpower
 
@@ -219,7 +211,7 @@ def main():
     print("creating new instance")
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(every_minute, 'interval', seconds=10)
+    scheduler.add_job(every_minute, 'interval', seconds=60)
     scheduler.start()
 
     mqttc = mqtt.Client()
