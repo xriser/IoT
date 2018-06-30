@@ -15,6 +15,8 @@ import datetime
 prev_temp = 0
 prev_fullenergy = 0
 prev_curpower = 0
+power_range = range(0, 2000)
+temp_range = range(0, 84)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -146,7 +148,8 @@ def on_message(mqttc, userdata, message):
                  }
             }
           ]
-          write_data(json_body)
+          if temp in temp_range:
+              write_data(json_body)
 
 
           print("get temp=" + str(message.payload.decode("utf-8")))
@@ -192,7 +195,8 @@ def on_message(mqttc, userdata, message):
                  }
             }
           ]
-          write_data(json_body)
+          if curpower in power_range:
+              write_data(json_body)
 
           print("get curpower=" + str(message.payload.decode("utf-8")))
           prev_curpower = curpower
