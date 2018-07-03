@@ -148,7 +148,7 @@ def on_message(mqttc, userdata, message):
                  }
             }
           ]
-          if temp in temp_range:
+          if round(temp) in temp_range:
               write_data(json_body)
 
 
@@ -195,7 +195,7 @@ def on_message(mqttc, userdata, message):
                  }
             }
           ]
-          if curpower in power_range:
+          if round(curpower) in power_range:
               write_data(json_body)
 
           print("get curpower=" + str(message.payload.decode("utf-8")))
